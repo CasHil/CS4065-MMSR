@@ -106,8 +106,7 @@ def recommend_song(song_vector):
     # Retrieve row with smallest cosine distance
     row_with_min_distance = df.iloc[min_distance_index]
     # song = row_with_min_distance["song_title"]
-    as_dict = row_with_min_distance.__dict__
-    return row_with_min_distance["song_title"]
+    return row_with_min_distance["song_title"][2:-1]
 
 def is_words_valid(situation_keywords, sentiment_keywords):
     for sentiment_keyword in sentiment_keywords:
