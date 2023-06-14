@@ -6,9 +6,16 @@ import numpy as np
 import csv
 from sklearn.metrics.pairwise import cosine_distances
 from flask import Flask, request
+import spacy
+import spacy.cli
+
 
 from gensim.models import Word2Vec
 import gensim.downloader as api
+
+spacy.cli.download("en_core_web_sm")
+nlp = spacy.load('en_core_web_sm')
+
 model = api.load("glove-wiki-gigaword-50")
 most_sim = (model.most_similar("glass"))
 # glove_vectors = gensim.downloader.load('glove-wiki-gigaword-300')
@@ -134,11 +141,17 @@ print("\n")
 
 app = Flask(__name__)
 
-@app.route('/endpoint', methods=['POST'])
+@app.route('/', methods=['POST'])
 def post_endpoint():
     data = request.get_json()
-    situation_keywords = data.get('situation_keywords')
-    sentiment_keywords = data.get('sentiment_keywords')
+    query = data.get('query')
+    doc = nlp(query)
+    with open("./feelings.csv", "r") as file:
+        csv_reader = csv.reader(file)
+        sentiment_keywords = [row[0] for row in csv_reader if row[0] in query]
+
+    situation_keywords = [
+        token.lemma_ for token in doc if not token.is_stop and token.pos_ == 'NOUN' and token.lemma_ not in sentiment_keywords]
     weights_summed = {}
     try:
         is_words_valid(situation_keywords, sentiment_keywords)
@@ -158,7 +171,9 @@ def post_endpoint():
             weights_summed[key] += weight
     ## normalize
     for weight in weights_summed:
-        weights_summed[weight] = weights_summed[weight] / len(situation_keywords) + len(sentiment_keywords)
+        if len(situation_keywords) > 0:
+            weights_summed[weight] = weights_summed[weight] / len(situation_keywords)
+        weights_summed[weight] += len(sentiment_keywords)
     if len(weights_summed) < 0:
         return "no valid song", 400
     return recommend_song(weights_summed), 200

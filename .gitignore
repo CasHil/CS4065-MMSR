@@ -2,3 +2,4 @@ mmsr-venv/
 .vscode/
 .cache
 .env
+venv/
