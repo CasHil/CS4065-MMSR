@@ -34,7 +34,7 @@ def map_text_to_audio_features(text):
 
     if search_results['tracks']['items']:
         track_uri = search_results['tracks']['items'][0]['uri']
-        track_info, _ = get_audio_features(track_uri)
+        track_info, audio_features = get_audio_features(track_uri)
         valence = sentiment
         energy = sentiment if sentiment >= 0 else 0
         loudness = sentiment * 10
@@ -52,7 +52,8 @@ def map_text_to_audio_features(text):
         loudness = max(-60, min(0, loudness))
         return {
             'track_info': track_info,
-            'audio_features': {
+            'audio_features': audio_features,
+            'mapped_audio_features': {
                 'energy': energy,
                 'loudness': loudness,
                 'speechiness': speechiness,
@@ -71,8 +72,11 @@ result = map_text_to_audio_features(text)
 if result:
     print("Track Name:", result['track_info']['name'])
     print("Artist:", result['track_info']['artists'][0]['name'])
-    print("Mapped Audio Features:")
+    print("Audio Features:")
     for feature, value in result['audio_features'].items():
+        print(f"{feature.capitalize()}: {value}")
+    print("Mapped Audio Features:")
+    for feature, value in result['mapped_audio_features'].items():
         print(f"{feature.capitalize()}: {value}")
 else:
     print("No matching track found.")
