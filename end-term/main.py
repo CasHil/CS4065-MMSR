@@ -157,6 +157,9 @@ def post_endpoint():
 
     situation_keywords = [
         token.lemma_ for token in doc if not token.is_stop and token.pos_ == 'NOUN' and token.lemma_ not in sentiment_keywords]
+    
+    if len(situation_keywords) == 0 and len(sentiment_keywords) == 0:
+        return "Invalid query, not enough context", 400
     weights_summed = {}
     try:
         is_words_valid(situation_keywords, sentiment_keywords)

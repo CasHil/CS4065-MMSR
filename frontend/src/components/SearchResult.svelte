@@ -1,6 +1,6 @@
 <script lang="ts">
-  export let result: string;
-  let htmlContent = '';
+  export let songResult: string;
+  $: htmlContent = '';
   const CLIENT_ID = '6203281b0b8644bcb94fc81e4bffba2c';
   const SPOTIFY_CLIENT_SECRET = '193ccf96e0794fd9b40a6b2d15910692'; 
   const SPOTIFY_SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
@@ -37,12 +37,11 @@
       method: 'GET'
     });
     const data = await response.json();
-    console.log(data)
-    htmlContent = data.html;
+    htmlContent = data.html;  
   };
 
-  if (result) {
-    search(result).then((data) => {
+  if (songResult) {
+    search(songResult).then((data) => {
       getEmbedUrl(data);
     });
   }

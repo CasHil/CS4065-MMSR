@@ -2,12 +2,13 @@
     import Textfield from '@smui/textfield';
     import Button, {Label} from '@smui/button';
 	import SearchResult from '../components/SearchResult.svelte';
-    import {writable} from 'svelte/store';
-    
+
     let query = '' 
+    let performedQuery = '';
     let songResult  = '';
-    const search = async (query: string) => {
-        
+    const matchRelevantSong = async (query: string) => {
+        performedQuery = query;
+        songResult = '';
         const response = await fetch('http://localhost:5000/', {
         method: 'POST',
         headers: {
@@ -15,6 +16,10 @@
         },
         body: JSON.stringify({ query: query })
     });
+        if (!response.ok) {
+            songResult = 'Invalid song';
+            return;
+        }
         const data = await response.json();
         songResult = data.song;
         } 
@@ -49,9 +54,10 @@
         margin: 20px;
     }
     
-    h1 {
+    h1, p, span {
         font-family: 'Roboto', sans-serif;
     }
+
 </style>
 <!-- Split the page up in two parts -->
 <div class="container">
@@ -64,13 +70,17 @@
               label="Type a context to search music for..."
             >   
             </Textfield>
-            <Button on:click={() => search(query)} variant="raised">
+            <Button on:click={() => matchRelevantSong(query)} variant="raised">
                 <Label>Search</Label>
               </Button>    </div>
     <div class="right">
         <h1>Result</h1>
-        {#if songResult}
-            <SearchResult result={songResult} /> 
+        {#if songResult === 'Invalid song'}
+            <p>No songs found for query: {performedQuery}</p>
+        {:else if songResult}
+            {#key songResult}
+                <SearchResult songResult={songResult} /> 
+            {/key}
         {:else}
             <p>No results yet...</p>
         {/if}
