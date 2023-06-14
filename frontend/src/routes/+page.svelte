@@ -2,15 +2,22 @@
     import Textfield from '@smui/textfield';
     import Button, {Label} from '@smui/button';
 	import SearchResult from '../components/SearchResult.svelte';
+    import {writable} from 'svelte/store';
     
-    let result = ''
-
+    let query = '' 
+    let songResult  = '';
     const search = async (query: string) => {
-        const res = await fetch('http://localhost:3000/search?query=' + query);
-        const data = await res.json();
-        return data;
-    } 
-    let value = ''
+        
+        const response = await fetch('http://localhost:5000/', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query: query })
+    });
+        const data = await response.json();
+        songResult = data.song;
+        } 
 </script>
 
 <style>
@@ -53,20 +60,19 @@
             <Textfield
               style="width: 100%; margin-bottom: 20px;"
               textarea
-              bind:value
+              bind:value={query}
               label="Type a context to search music for..."
-            >
+            >   
             </Textfield>
-            <Button on:click={() => search(value)} variant="raised">
+            <Button on:click={() => search(query)} variant="raised">
                 <Label>Search</Label>
               </Button>    </div>
     <div class="right">
         <h1>Result</h1>
-        {#if result}
-            <SearchResult result={result} /> 
+        {#if songResult}
+            <SearchResult result={songResult} /> 
         {:else}
             <p>No results yet...</p>
         {/if}
-
     </div>
 </div>

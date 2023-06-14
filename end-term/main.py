@@ -6,6 +6,7 @@ import numpy as np
 import csv
 from sklearn.metrics.pairwise import cosine_distances
 from flask import Flask, request
+from flask_cors import CORS, cross_origin
 import spacy
 import spacy.cli
 
@@ -141,7 +142,11 @@ print("\n")
 
 app = Flask(__name__)
 
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 @app.route('/', methods=['POST'])
+@cross_origin()
 def post_endpoint():
     data = request.get_json()
     query = data.get('query')
@@ -176,7 +181,7 @@ def post_endpoint():
         weights_summed[weight] += len(sentiment_keywords)
     if len(weights_summed) < 0:
         return "no valid song", 400
-    return recommend_song(weights_summed), 200
+    return {"song": recommend_song(weights_summed)}, 200
         
 
 if __name__ == '__main__':
