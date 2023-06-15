@@ -1,3 +1,7 @@
-First install all required packages: `pip install -r requirements.txt`
-`song_clustering.py` should work out-of-the-box, it is mainly to visualize a way to cluster different songs.
-`spotify_searcher.py` requires you to register the app with [Spotify for Developers](https://developer.spotify.com/). You then obtain a client ID and client secret. Paste those in .env.copy and change the filename to .env.
+# Musical search engine based on context and emotion
+
+## Backend
+Run `cd backend`, `pip install -r requirements.txt`, `python main.py` to start the backend. The backend is built using Flask.
+
+## Frontend
+Run `cd frontend`, `npm i`, `npm run dev -- --open` to start the frontend. The frontend is built using Svelte.
