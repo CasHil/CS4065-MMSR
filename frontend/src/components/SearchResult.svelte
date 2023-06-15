@@ -1,6 +1,7 @@
 <script lang="ts">
   export let songResults: string | string[];
-  let htmlContentList: string[] = [];
+  let htmlContent: string = '';
+  let results : string[] = [];
   const CLIENT_ID = '6203281b0b8644bcb94fc81e4bffba2c';
   const SPOTIFY_CLIENT_SECRET = '193ccf96e0794fd9b40a6b2d15910692'; 
   const SPOTIFY_SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
@@ -36,24 +37,29 @@
       method: 'GET'
     });
     const data = await response.json();
-    htmlContentList.push(data.html); 
+    updateResults(data.html); 
   };
 
-  $: if (songResults) {
-    (songResults as string[]).forEach((song: string) => {
-      search(song).then((data) => {
-          getEmbedUrl(data);
-        })
-    });
-    htmlContentList = htmlContentList.map((item) => {
-      return item.replace(/\\/g, '');
-    });
-    console.log(htmlContentList)
+  const updateResults = (item: string) => {
+    results = [...results, item]
   }
+
+  (songResults.slice(0, 3) as string[]).forEach((song: string) => {
+    search(song).then((data) => {
+      getEmbedUrl(data);
+    })
+  });
+  results = results.map((item) => {
+    return item.replace(/\\/g, '');
+  });
+  console.log(results);
 </script>
 
-{#each htmlContentList as item}
-  <div style="width: 90%;">
-    {@html item}  
-  </div> 
-{/each}
+{#if results && results.length > 0}
+<div style="width: 90%;">
+  {@html results.join('')}
+</div>
+{/if} 
+
+
+<!-- Why is the htmlContentList not rendering? -->

@@ -14,9 +14,12 @@ import spacy.cli
 from gensim.models import Word2Vec
 import gensim.downloader as api
 
-spacy.cli.download("en_core_web_sm")
-nlp = spacy.load('en_core_web_sm')
-
+try:
+    nlp = spacy.load('en_core_web_sm')
+except:
+    spacy.cli.download("en_core_web_sm")
+    nlp = spacy.load('en_core_web_sm')
+    
 model = api.load("glove-wiki-gigaword-50")
 most_sim = (model.most_similar("glass"))
 WORD = re.compile(r"\w+")
