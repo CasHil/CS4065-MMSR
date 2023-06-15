@@ -5,10 +5,10 @@
 
     let query = '' 
     let performedQuery = '';
-    let songResult  = '';
-    const matchRelevantSong = async (query: string) => {
+    let songResults: string | string[]  = '';
+    const matchRelevantSongs = async (query: string) => {
         performedQuery = query;
-        songResult = '';
+        songResults = '';
         const response = await fetch('http://localhost:5000/', {
         method: 'POST',
         headers: {
@@ -17,11 +17,12 @@
         body: JSON.stringify({ query: query })
     });
         if (!response.ok) {
-            songResult = 'Invalid song';
+            songResults = 'Invalid result';
             return;
         }
         const data = await response.json();
-        songResult = data.song;
+        console.log(data.songs)
+        songResults = (data.songs as string[]);
         } 
 </script>
 
@@ -70,16 +71,16 @@
               label="Type a context to search music for..."
             >   
             </Textfield>
-            <Button on:click={() => matchRelevantSong(query)} variant="raised">
+            <Button on:click={() => matchRelevantSongs(query)} variant="raised">
                 <Label>Search</Label>
               </Button>    </div>
     <div class="right">
         <h1>Result</h1>
-        {#if songResult === 'Invalid song'}
+        {#if songResults === 'Invalid song'}
             <p>No songs found for query: {performedQuery}</p>
-        {:else if songResult}
-            {#key songResult}
-                <SearchResult songResult={songResult} /> 
+        {:else if songResults}
+            {#key songResults}
+                <SearchResult songResults={songResults} /> 
             {/key}
         {:else}
             <p>No results yet...</p>

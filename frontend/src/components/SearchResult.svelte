@@ -1,6 +1,6 @@
 <script lang="ts">
-  export let songResult: string;
-  $: htmlContent = '';
+  export let songResults: string | string[];
+  let htmlContentList: string[] = [];
   const CLIENT_ID = '6203281b0b8644bcb94fc81e4bffba2c';
   const SPOTIFY_CLIENT_SECRET = '193ccf96e0794fd9b40a6b2d15910692'; 
   const SPOTIFY_SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
@@ -28,7 +28,6 @@
       },
     });
     const data = await response.json();
-    console.log(data.tracks.items[0].external_urls.spotify)
     return data.tracks.items[0].external_urls.spotify;
   };
 
@@ -37,19 +36,24 @@
       method: 'GET'
     });
     const data = await response.json();
-    htmlContent = data.html;  
+    htmlContentList.push(data.html); 
   };
 
-  if (songResult) {
-    search(songResult).then((data) => {
-      getEmbedUrl(data);
+  $: if (songResults) {
+    (songResults as string[]).forEach((song: string) => {
+      search(song).then((data) => {
+          getEmbedUrl(data);
+        })
     });
+    htmlContentList = htmlContentList.map((item) => {
+      return item.replace(/\\/g, '');
+    });
+    console.log(htmlContentList)
   }
 </script>
 
-{#if htmlContent}
-<div style="width: 90%;">
-  {@html htmlContent}
-</div> 
-{/if}
-
+{#each htmlContentList as item}
+  <div style="width: 90%;">
+    {@html item}  
+  </div> 
+{/each}
