@@ -11,8 +11,6 @@ from gensim.models import Word2Vec
 import gensim.downloader as api
 model = api.load("glove-wiki-gigaword-50")
 most_sim = (model.most_similar("glass"))
-# glove_vectors = gensim.downloader.load('glove-wiki-gigaword-300')
-# model = Word2Vec.load('glove-wiki-gigaword-300')
 WORD = re.compile(r"\w+")
 
 df = pd.read_csv('million_song_subset.csv', sep='###')
@@ -20,27 +18,17 @@ df.drop(['time_signature', 'duration'], axis=1)
 pd.options.display.max_columns = 10
 df.head()
 
-# df1 = df.drop(['duration', 'year', 'energy', 'danceability'], axis=1)
 
-# data_final = df1.drop(['song_id', 'song_title'], axis=1)
-
-data_scaled = pd.DataFrame(df, columns=['danceability', 'energy', 'loudness', 'tempo', 'time_signature', 'segment_loudness_avg',
-                                                #  'chroma1', 'chroma2', 'chroma3', 'chroma4', 'chroma5', 'chroma6',
-                                                #  'chroma7', 'chroma8', 'chroma9', 'chroma10', 'chroma11', 'chroma12',
-                                                #  'MFCC1', 'MFCC2', 'MFCC3', 'MFCC4', 'MFCC5', 'MFCC6', 'MFCC7', 'MFCC8',
-                                                #  'MFCC9', 'MFCC10', 'MFCC11', 'MFCC12'
+data_scaled = pd.DataFrame(df, columns=['danceability', 'energy', 'loudness', 'tempo', 'time_signature', 'segment_loudness_avg'
                                                 ])
 
 
 
 subset_columns = ['loudness', 'tempo']#['danceability', 'energy', 'loudness', 'tempo']
 song_subset = data_scaled[subset_columns]
-# song_subset = (song_subset - song_subset.min()) / (song_subset.max() - song_subset.min())
-#columns =  #'time', 'segment_loudness_avg']
+
 columns = subset_columns#['dance', 'energy', 'loudness', 'tempo']
-# def normalize_song_subset(songs, columns):
-#     min_values = songs.min()
-#     max_values = songs.max()
+
 normalized_songs=(song_subset-song_subset.mean())/song_subset.std()
     
 
@@ -102,12 +90,11 @@ def get_keyword_weights_normalized(keyword, distances, columns):
 def recommend_songs(song_vector):
     song_vector = np.array(list(song_vector.values()))
     distances = cosine_distances(normalized_songs, [song_vector])
+    ## find indicies of the rows with smallest distance
     min_distance_indices = np.argsort(distances, axis=0)[:10].flatten()
-    # Retrieve rows with the smallest cosine distances
-    # rows_with_min_distances = df.iloc[[min_distance_indices], :]
+    ## retrieve rows
     rows_with_min_distances = df.loc[df.index[min_distance_indices]]
-    # song = row_with_min_distance["song_title"]
-    # song_titles = [row["song_title"][2:-1] for row in rows_with_min_distances.iterrows()]
+    ## extract songtitles
     song_titles = [song_title[2:-1] for song_title in rows_with_min_distances['song_title']]
     return song_titles
 
