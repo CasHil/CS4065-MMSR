@@ -99,14 +99,17 @@ def get_keyword_weights_normalized(keyword, distances, columns):
     return weights
 
 ## recommends a song based a vector, and the distance to a songs vector
-def recommend_song(song_vector):
+def recommend_songs(song_vector):
     song_vector = np.array(list(song_vector.values()))
     distances = cosine_distances(normalized_songs, [song_vector])
-    min_distance_index = np.argmin(distances)
-    # Retrieve row with smallest cosine distance
-    row_with_min_distance = df.iloc[min_distance_index]
+    min_distance_indices = np.argsort(distances, axis=0)[:10].flatten()
+    # Retrieve rows with the smallest cosine distances
+    # rows_with_min_distances = df.iloc[[min_distance_indices], :]
+    rows_with_min_distances = df.loc[df.index[min_distance_indices]]
     # song = row_with_min_distance["song_title"]
-    return row_with_min_distance["song_title"][2:-1]
+    # song_titles = [row["song_title"][2:-1] for row in rows_with_min_distances.iterrows()]
+    song_titles = [song_title[2:-1] for song_title in rows_with_min_distances['song_title']]
+    return song_titles
 
 def is_words_valid(situation_keywords, sentiment_keywords):
     for sentiment_keyword in sentiment_keywords:
@@ -129,7 +132,6 @@ print("                        _.' )   ____  '-'    ;")
 print("                       (    `-''  __``-'    /")
 print("                        ``-....-''  ``-..-''")
 print("\n")
-
 
 
 app = Flask(__name__)
@@ -161,7 +163,8 @@ def post_endpoint():
         weights_summed[weight] = weights_summed[weight] / len(situation_keywords) + len(sentiment_keywords)
     if len(weights_summed) < 0:
         return "no valid song", 400
-    return recommend_song(weights_summed), 200
+    data = {"songs": recommend_songs(weights_summed)}
+    return data, 200
         
 
 if __name__ == '__main__':
