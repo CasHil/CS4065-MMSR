@@ -1,12 +1,20 @@
 <script lang="ts">
+  import Radio from '@smui/radio';
+  import FormField from '@smui/form-field';
+  import Button, {Label} from '@smui/button';
+
   export let songResults: string | string[];
-  let htmlContent: string = '';
-  let results : string[] = [];
+  export let performedQuery: string;
+
   const CLIENT_ID = '6203281b0b8644bcb94fc81e4bffba2c';
   const SPOTIFY_CLIENT_SECRET = '193ccf96e0794fd9b40a6b2d15910692'; 
   const SPOTIFY_SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
   const SPOTIFY_OEMBED_ENDPOINT = 'https://open.spotify.com/oembed';
+  const LIMIT: number = 3;
+  const LIMITED_SONG_RESULTS = (songResults as string[]).slice(0, LIMIT);
 
+  let selected: string[] = Array(LIMIT).fill('1');
+  let results : string[] = [];
   const getAccessToken = async () => {
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
@@ -44,7 +52,21 @@
     results = [...results, item]
   }
 
-  (songResults.slice(0, 3) as string[]).forEach((song: string) => {
+  const writeSelectedToFile = () => {
+    let ratings = {
+      query: performedQuery,
+      results: LIMITED_SONG_RESULTS.map((item, index) => [item, selected[index]])
+    }
+    let fileContent = JSON.stringify(ratings);
+    const element = document.createElement('a');
+    const file = new Blob([fileContent], {type: 'text/json'});
+    element.href = URL.createObjectURL(file);
+    element.download = `${performedQuery}.txt`;
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+  }
+
+  LIMITED_SONG_RESULTS.forEach((song: string) => {
     search(song).then((data) => {
       getEmbedUrl(data);
     })
@@ -52,14 +74,38 @@
   results = results.map((item) => {
     return item.replace(/\\/g, '');
   });
-  console.log(results);
 </script>
 
+<style>
+    h2 {
+      font-family: 'Roboto', sans-serif;
+    }
+    .radio-demo {
+      margin-bottom: 1rem;
+    }
+</style>
+
 {#if results && results.length > 0}
-<div style="width: 90%;">
-  {@html results.join('')}
+<div style="width: 90%; display: flex; flex-direction: column; align-items: center;">
+  <h2>Rate on a scale from 1 to 7 how relevant each result is</h2>
+  {#each results as result, i}
+    {@html result}
+  <div class="radio-demo">
+    {#each Array.from(Array(7).keys()) as option}
+      <FormField>
+        <Radio
+          bind:group={selected[i]}
+          value={option + 1}
+        />
+        <span slot="label">
+          {option + 1}
+        </span>
+      </FormField>
+    {/each}
+  </div>  
+  {/each}
+  <Button on:click={() => writeSelectedToFile()}>
+    <Label>Submit ratings</Label>
+  </Button>
 </div>
 {/if} 
-
-
-<!-- Why is the htmlContentList not rendering? -->

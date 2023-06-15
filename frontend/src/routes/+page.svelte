@@ -55,7 +55,7 @@
         margin: 20px;
     }
     
-    h1, p, span {
+    h1, h2, p, span {
         font-family: 'Roboto', sans-serif;
     }
 
@@ -73,14 +73,15 @@
             </Textfield>
             <Button on:click={() => matchRelevantSongs(query)} variant="raised">
                 <Label>Search</Label>
-              </Button>    </div>
+              </Button>    
+    </div>
     <div class="right">
         <h1>Result</h1>
         {#if songResults === 'Invalid song'}
             <p>No songs found for query: {performedQuery}</p>
-        {:else if songResults}
+        {:else if Array.isArray(songResults) && songResults.length > 0}
             {#key songResults}
-                <SearchResult songResults={songResults} /> 
+                <SearchResult songResults={songResults} performedQuery={performedQuery} /> 
             {/key}
         {:else}
             <p>No results yet...</p>
