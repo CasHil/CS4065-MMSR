@@ -6,8 +6,8 @@
   export let songResults: string | string[];
   export let performedQuery: string;
 
-  const CLIENT_ID = '6203281b0b8644bcb94fc81e4bffba2c';
-  const SPOTIFY_CLIENT_SECRET = '193ccf96e0794fd9b40a6b2d15910692'; 
+  const CLIENT_ID = '';
+  const SPOTIFY_CLIENT_SECRET = ''; 
   const SPOTIFY_SEARCH_ENDPOINT = 'https://api.spotify.com/v1/search';
   const SPOTIFY_OEMBED_ENDPOINT = 'https://open.spotify.com/oembed';
   const LIMIT: number = 3;
